@@ -1,0 +1,3 @@
+allowBuilds:
+  rs-module-lexer: true
+  vue-demi: true

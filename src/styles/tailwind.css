@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* class 模式深色主题（与 v3 的 darkMode: 'class' 等效） */
+@variant dark (&:is(.dark *));

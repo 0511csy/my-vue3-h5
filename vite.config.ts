@@ -1,0 +1,75 @@
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath, URL } from 'node:url'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import AutoImport from 'unplugin-auto-import/vite'
+import { VantResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig, loadEnv } from 'vite'
+import { compression } from 'vite-plugin-compression2'
+import { mockDevServerPlugin } from 'vite-plugin-mock-dev-server'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng'
+import { enableCDN } from './build/cdn'
+
+// 当前工作目录路径
+const root: string = process.cwd()
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => {
+  // 环境变量
+  const env = loadEnv(mode, root, '')
+  return {
+    base: env.VITE_PUBLIC_PATH || '/',
+    plugins: [
+      vue(),
+      vueJsx(),
+      mockDevServerPlugin(),
+      // 自动导入 Vue/Vue Router/Pinia API
+      AutoImport({
+        imports: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
+        dts: 'src/typings/auto-imports.d.ts',
+      }),
+      // vant 组件自动按需引入
+      Components({
+        dts: 'src/typings/components.d.ts',
+        resolvers: [VantResolver()],
+      }),
+      // svg icon
+      createSvgIconsPlugin({
+        // 指定图标文件夹
+        iconDirs: [path.resolve(root, 'src/icons/svg')],
+        // 指定 symbolId 格式
+        symbolId: 'icon-[dir]-[name]',
+      }),
+      // 生产环境 gzip 压缩资源
+      compression(),
+      // 生产环境默认不启用 CDN 加速
+      enableCDN(env.VITE_CDN_DEPS),
+    ],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
+    server: {
+      host: true,
+      // 仅在 proxy 中配置的代理前缀， mock-dev-server 才会拦截并 mock
+      // doc: https://github.com/pengzhanbo/vite-plugin-mock-dev-server
+      proxy: {
+        '^/dev-api': {
+          target: '',
+        },
+      },
+    },
+    build: {
+      rolldownOptions: {
+        output: {
+          chunkFileNames: 'static/js/[name]-[hash].js',
+          entryFileNames: 'static/js/[name]-[hash].js',
+          assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+        },
+      },
+    },
+  }
+})
