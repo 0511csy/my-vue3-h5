@@ -9,18 +9,21 @@ const { cachedViewList } = storeToRefs(cachedViewStore)
 
 const darkModeStore = useDarkModeStore()
 const { theme } = storeToRefs(darkModeStore)
+
+const route = useRoute()
+const hideBar = computed(() => route.meta.hideBar === true)
 </script>
 
 <template>
   <div class="app-wrapper">
     <van-config-provider :theme="theme">
-      <NavBar />
+      <NavBar v-if="!hideBar" />
       <router-view v-slot="{ Component }">
         <keep-alive :include="cachedViewList">
           <component :is="Component" />
         </keep-alive>
       </router-view>
-      <tabbar />
+      <tabbar v-if="!hideBar" />
     </van-config-provider>
   </div>
 </template>

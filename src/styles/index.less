@@ -52,3 +52,64 @@ a:hover {
 .dark::view-transition-new(root) {
   z-index: 1;
 }
+
+// 弹窗留白优化：标题、正文、按钮之间不挤在一起
+.van-dialog {
+  border-radius: 20px !important;
+  overflow: hidden;
+
+  &__header {
+    padding: 24px 24px 0 !important;
+    text-align: left !important;
+  }
+
+  &__message {
+    padding: 16px 24px 20px !important;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+}
+
+// 弹窗按钮：确认/取消同行，取消描边无背景，确认带背景色
+.van-dialog__footer {
+  display: flex !important;
+  gap: 12px;
+  padding: 0 20px 20px !important;
+
+  &::after {
+    display: none !important;
+  }
+
+  .van-dialog__cancel,
+  .van-dialog__confirm {
+    flex: 1 !important;
+    height: 42px !important;
+    margin: 0 !important;
+    border: 1px solid var(--van-border-color) !important;
+    border-radius: 999px !important;
+    background: var(--van-primary-color) !important;
+    color: #fff !important;
+    font-weight: 500;
+    font-size: 15px !important;
+
+    &::after {
+      display: none !important;
+    }
+  }
+
+  .van-dialog__cancel {
+    background: transparent !important;
+    color: var(--van-text-color-2) !important;
+  }
+}
+
+// 删除等危险操作：确认按钮红色
+.dialog-danger {
+  .van-dialog__confirm {
+    background: var(--van-danger-color) !important;
+  }
+}
+
+.van-toast {
+  line-height: 1.5;
+}

@@ -4,24 +4,31 @@ import { reactive, ref } from 'vue'
 const active = ref(0)
 const tabbarData = reactive([
   {
-    icon: 'wap-home-o',
-    title: '主页',
+    icon: 'clock-o',
+    title: '专注',
     to: {
-      name: 'Demo',
+      name: 'Focus',
     },
   },
   {
-    icon: 'gem-o',
-    title: '工具',
+    icon: 'todo-list-o',
+    title: '待办',
     to: {
-      name: 'Tools',
+      name: 'Todo',
     },
   },
   {
-    icon: 'user-o',
-    title: '关于',
+    icon: 'calendar-o',
+    title: '习惯',
     to: {
-      name: 'About',
+      name: 'Habit',
+    },
+  },
+  {
+    icon: 'notes-o',
+    title: '备忘录',
+    to: {
+      name: 'Memo',
     },
   },
 ])

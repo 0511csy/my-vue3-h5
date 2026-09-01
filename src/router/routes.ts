@@ -6,31 +6,61 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'root',
     component: Layout,
-    redirect: { name: 'Demo' },
+    redirect: { name: 'Focus' },
     children: [
       {
-        path: 'demo',
-        name: 'Demo',
-        component: () => import('@/views/demo/index.vue'),
+        path: 'focus',
+        name: 'Focus',
+        component: () => import('@/views/focus/index.vue'),
         meta: {
-          title: '主页',
+          title: '专注',
+          showAdd: true,
         },
       },
       {
-        path: 'tools',
-        name: 'Tools',
-        component: () => import('@/views/tools/index.vue'),
+        path: 'focus/timer',
+        name: 'FocusTimer',
+        component: () => import('@/views/focus/timer.vue'),
         meta: {
-          title: '工具',
-        },
-      },
-      {
-        path: 'about',
-        name: 'About',
-        component: () => import('@/views/about/index.vue'),
-        meta: {
-          title: '关于',
+          title: '专注中',
           noCache: true,
+          hideBar: true,
+        },
+      },
+      {
+        path: 'todo',
+        name: 'Todo',
+        component: () => import('@/views/todo/index.vue'),
+        meta: {
+          title: '待办',
+        },
+      },
+      {
+        path: 'habit',
+        name: 'Habit',
+        component: () => import('@/views/habit/index.vue'),
+        meta: {
+          title: '习惯',
+          showAdd: true,
+        },
+      },
+      {
+        path: 'memo',
+        name: 'Memo',
+        component: () => import('@/views/memo/index.vue'),
+        meta: {
+          title: '备忘录',
+          showAdd: true,
+        },
+      },
+      {
+        path: 'memo/edit',
+        name: 'MemoEdit',
+        component: () => import('@/views/memo/edit.vue'),
+        meta: {
+          title: '编辑备忘录',
+          noCache: true,
+          hideBar: true,
         },
       },
     ],
