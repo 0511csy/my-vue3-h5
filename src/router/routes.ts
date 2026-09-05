@@ -42,6 +42,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '习惯',
           showAdd: true,
+          showToday: true,
         },
       },
       {

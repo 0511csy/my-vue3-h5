@@ -32,6 +32,11 @@ const tabbarData = reactive([
     },
   },
 ])
+
+// 点击 tab 后回到页面最顶端
+function onTabClick() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -41,6 +46,7 @@ const tabbarData = reactive([
       :key="index"
       :icon="item.icon"
       :to="item.to"
+      @click="onTabClick"
     >
       {{ item.title }}
     </van-tabbar-item>

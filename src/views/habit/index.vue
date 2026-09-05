@@ -85,37 +85,40 @@ function cellDay(cell: string | null) {
   return cell ? Number(cell.slice(8)) : ''
 }
 
-// ---- 点击日期：查看当日打卡习惯 ----
-const showDay = ref(false)
-const selectedDate = ref('')
-const dayTitle = computed(() => {
-  if (!selectedDate.value)
-    return ''
+// ---- 点击日期：直接在列表展示当日打卡情况 ----
+const today = todayStr()
+const selectedDate = ref(today)
+const selectedTitle = computed(() => {
+  if (selectedDate.value === today)
+    return '今日打卡'
   const [, m, d] = selectedDate.value.split('-')
-  return `${Number(m)}月${Number(d)}日`
+  return `${Number(m)}月${Number(d)}日 打卡`
 })
-const dayHabits = computed(() =>
-  habits.value.filter(h => h.records.includes(selectedDate.value)),
-)
 function openDay(cell: string | null) {
   if (!cell)
     return
   selectedDate.value = cell
-  showDay.value = true
+}
+
+// 顶栏「今天」按钮：回到今天并选中今天
+function backToToday() {
+  const d = new Date()
+  year.value = d.getFullYear()
+  month.value = d.getMonth()
+  selectedDate.value = today
 }
 
 // ---- 打卡列表 ----
-const today = todayStr()
 function isChecked(h: Habit) {
-  return h.records.includes(today)
+  return h.records.includes(selectedDate.value)
 }
 
-// 日期数字样式：今天实心、选中外圈描边、有打卡记录的文字标色
+// 日期数字样式：今天实心、选中浅色背景、有打卡记录的文字标色
 function cellNumClass(cell: string) {
   if (cell === today)
     return 'font-bold bg-[var(--van-primary-color)] text-white'
   if (cell === selectedDate.value)
-    return 'font-semibold text-[var(--van-primary-color)] ring-[1.5px] ring-[var(--van-primary-color)]'
+    return 'font-semibold text-[var(--van-primary-color)] bg-[var(--van-primary-color)]/15'
   if (checkedHabitsByDate.value.has(cell))
     return 'text-[var(--van-primary-color)]'
   return ''
@@ -128,6 +131,12 @@ const showFreqPicker = ref(false)
 const freqColumns = freqOptions.map(f => ({ text: f, value: f }))
 
 watch(() => uiStore.addTrigger, () => openNew())
+watch(() => uiStore.todayTrigger, () => backToToday())
+// 选中非今天日期时顶栏显示「回到今天」按钮，选中今天时隐藏
+watch(selectedDate, (v) => {
+  uiStore.setBackToTodayVisible(v !== today)
+}, { immediate: true })
+onUnmounted(() => uiStore.setBackToTodayVisible(false))
 
 function openNew() {
   editing.value = { id: '', name: '', freq: '每天', records: [] }
@@ -197,7 +206,8 @@ function remove(h: Habit) {
                   />
                 </template>
                 <span v-else-if="cellColors(cell).length > 4" class="flex items-center gap-[2px]">
-                  <span v-for="j in 3" :key="j" class="h-[3px] w-[3px] rounded-full bg-[var(--van-text-color-3)]" />
+                  <van-icon name="weapp-nav" color="var(--van-primary-color)" />
+                  <!-- <span v-for="j in 3" :key="j" class="h-[3px] w-[3px] rounded-full bg-[var(--van-primary-color)]" /> -->
                 </span>
               </span>
             </button>
@@ -210,6 +220,9 @@ function remove(h: Habit) {
     <van-empty v-if="habits.length === 0" description="暂无习惯，点击右上角新增" />
 
     <div class="px-[12px]">
+      <div class="mb-[8px] px-[4px]">
+        <span class="text-[14px] font-medium text-[var(--van-text-color-2)]">{{ selectedTitle }}</span>
+      </div>
       <van-swipe-cell v-for="item in habits" :key="item.id" class="mb-[12px] rounded-[12px]">
         <div class="flex items-center justify-between bg-[var(--color-block-background)] rounded-[12px] px-[16px] py-[14px]">
           <div>
@@ -229,7 +242,7 @@ function remove(h: Habit) {
             :plain="isChecked(item)"
             size="small"
             round
-            @click="store.toggleHabitCheck(item.id)"
+            @click="store.toggleHabitCheck(item.id, selectedDate)"
           >
             {{ isChecked(item) ? '已打卡' : '打卡' }}
           </van-button>
@@ -240,32 +253,6 @@ function remove(h: Habit) {
         </template>
       </van-swipe-cell>
     </div>
-
-    <!-- 某日打卡记录 -->
-    <van-popup v-model:show="showDay" position="bottom" round class="!pb-[24px]">
-      <div class="pl-[24px] pt-[24px] pb-[4px] text-left text-[16px] font-bold">
-        {{ dayTitle }} 打卡记录
-      </div>
-      <div class="px-[20px] pb-[8px] pt-[8px]">
-        <template v-if="dayHabits.length > 0">
-          <div
-            v-for="h in dayHabits"
-            :key="h.id"
-            class="mt-[10px] flex items-center justify-between rounded-[12px] bg-[var(--color-background-2)] px-[16px] py-[12px]"
-          >
-            <span class="flex items-center text-[15px]">
-              <span
-                class="mr-[8px] h-[14px] w-[4px] rounded-full"
-                :style="{ background: habitColor(h) }"
-              />
-              {{ h.name }}
-            </span>
-            <van-icon name="checked" size="18" class="text-[var(--van-success-color)]" />
-          </div>
-        </template>
-        <van-empty v-else description="当天暂无打卡记录" image-size="64" />
-      </div>
-    </van-popup>
 
     <van-popup v-model:show="showEdit" position="bottom" round class="!pb-[24px]">
       <div class="pl-[24px] pt-[24px] pb-[8px] text-left text-[16px] font-bold">

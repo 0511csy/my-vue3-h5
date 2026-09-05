@@ -10,5 +10,7 @@ declare module 'vue-router' {
     hideBar?: boolean
     /** 顶栏右侧是否显示新增按钮 */
     showAdd?: boolean
+    /** 顶栏右侧是否显示「今天」按钮 */
+    showToday?: boolean
   }
 }
