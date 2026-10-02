@@ -1,0 +1,22 @@
+// Cloudflare Workers 配置：https://developers.cloudflare.com/workers/wrangler/configuration/
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "focus-app-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-01",
+	// D1 数据库绑定；binding 名与 server/src/index.ts 里的 c.env.DB 对应，勿改
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "focus-db",
+			"database_id": "4970c429-f018-40e1-a026-901691b36aec"
+		}
+	],
+	// 访问令牌：所有请求需携带 Authorization: Bearer <token>，与前端 .env 的 VITE_API_TOKEN 保持一致
+	"vars": {
+		"AUTH_TOKEN": "c317b7f878c82c798f581942f394b39b728ac1144ae5d3b0"
+	},
+	"observability": {
+		"enabled": true
+	}
+}

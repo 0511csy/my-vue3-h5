@@ -57,8 +57,11 @@ export default defineConfig(({ mode }) => {
       // 仅在 proxy 中配置的代理前缀， mock-dev-server 才会拦截并 mock
       // doc: https://github.com/pengzhanbo/vite-plugin-mock-dev-server
       proxy: {
+        // 开发环境转发到本地 wrangler dev（server 目录）；未匹配到 mock 定义的 /dev-api 请求都会走这里
         '^/dev-api': {
-          target: '',
+          target: 'http://127.0.0.1:8787',
+          changeOrigin: true,
+          rewrite: p => p.replace(/^\/dev-api/, ''),
         },
       },
     },

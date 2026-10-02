@@ -1,3 +1,5 @@
+import { focusApi } from '@/api/focus'
+
 export interface Pomodoro {
   id: string
   name: string
@@ -57,12 +59,26 @@ const defaultHabits: Habit[] = [
   { id: uid(), name: '阅读', freq: '每天', records: [] },
 ]
 
+// 数据现在存云端 D1；首次接入时把旧版 localStorage 数据迁移上去
+function readLegacy<T>(key: string): T[] {
+  try {
+    const raw = localStorage.getItem(key)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed : []
+  }
+  catch {
+    return []
+  }
+}
+
 export const useFocusAppStore = defineStore('focus-app', () => {
-  const pomodoros = useStorage<Pomodoro[]>('focus_pomodoros', defaultPomodoros)
-  const todos = useStorage<Todo[]>('focus_todos', [])
-  const habits = useStorage<Habit[]>('focus_habits', defaultHabits)
-  const memos = useStorage<Memo[]>('focus_memos', [])
-  const focusSessions = useStorage<FocusSession[]>('focus_sessions', [])
+  const pomodoros = ref<Pomodoro[]>([])
+  const todos = ref<Todo[]>([])
+  const habits = ref<Habit[]>([])
+  const memos = ref<Memo[]>([])
+  const focusSessions = ref<FocusSession[]>([])
+
+  const loaded = ref(false)
 
   const todayFocusCount = computed(() =>
     focusSessions.value.filter(s => s.date === todayStr()).length,
@@ -73,48 +89,114 @@ export const useFocusAppStore = defineStore('focus-app', () => {
       .reduce((sum, s) => sum + s.minutes, 0),
   )
 
-  function addFocusSession(name: string, minutes: number) {
-    focusSessions.value.push({ id: uid(), name, minutes, date: todayStr(), at: Date.now() })
+  // 应用启动时调用一次：拉取全部数据，必要时迁移/播种
+  async function init() {
+    if (loaded.value)
+      return
+    loaded.value = true
+
+    const [p, t, h, m, s] = await Promise.all([
+      focusApi.listPomodoros(),
+      focusApi.listTodos(),
+      focusApi.listHabits(),
+      focusApi.listMemos(),
+      focusApi.listFocusSessions(),
+    ])
+    pomodoros.value = p
+    todos.value = t
+    habits.value = h
+    memos.value = m
+    focusSessions.value = s
+
+    await migrateOrSeed(p, h)
   }
 
-  function savePomodoro(p: Pomodoro) {
+  async function migrateOrSeed(serverPomodoros: Pomodoro[], serverHabits: Habit[]) {
+    const legacyPomodoros = readLegacy<Pomodoro>('focus_pomodoros')
+    const legacyTodos = readLegacy<Todo>('focus_todos')
+    const legacyHabits = readLegacy<Habit>('focus_habits')
+    const legacyMemos = readLegacy<Memo>('focus_memos')
+    const hasLegacy = legacyPomodoros.length + legacyTodos.length + legacyHabits.length + legacyMemos.length > 0
+
+    if (hasLegacy) {
+      // 旧版本地数据上传云端，完成后清掉本地键避免重复迁移
+      await Promise.all([
+        ...legacyPomodoros.map(savePomodoro),
+        ...legacyTodos.map(saveTodo),
+        ...legacyHabits.map(saveHabit),
+        ...legacyMemos.map(saveMemo),
+      ])
+      ;['focus_pomodoros', 'focus_todos', 'focus_habits', 'focus_memos', 'focus_sessions'].forEach(k => localStorage.removeItem(k))
+      pomodoros.value = [...legacyPomodoros, ...pomodoros.value.filter(np => !legacyPomodoros.some(lp => lp.id === np.id))]
+      todos.value = [...legacyTodos, ...todos.value.filter(nt => !legacyTodos.some(lt => lt.id === nt.id))]
+      habits.value = [...legacyHabits, ...habits.value.filter(nh => !legacyHabits.some(lh => lh.id === nh.id))]
+      memos.value = [...legacyMemos, ...memos.value.filter(nm => !legacyMemos.some(lm => lm.id === nm.id))]
+      return
+    }
+
+    // 首次使用：云端为空且从未播种过时写入默认项
+    if (localStorage.getItem('focus_seeded'))
+      return
+    localStorage.setItem('focus_seeded', '1')
+    if (serverPomodoros.length === 0) {
+      for (const p of defaultPomodoros)
+        await savePomodoro(p)
+      pomodoros.value = defaultPomodoros
+    }
+    if (serverHabits.length === 0) {
+      for (const h of defaultHabits)
+        await saveHabit(h)
+      habits.value = defaultHabits
+    }
+  }
+
+  async function savePomodoro(p: Pomodoro) {
     const index = pomodoros.value.findIndex(item => item.id === p.id)
     if (index > -1)
       pomodoros.value.splice(index, 1, p)
     else
       pomodoros.value.push(p)
+    await focusApi.savePomodoro(p)
   }
-  function removePomodoro(id: string) {
+  async function removePomodoro(id: string) {
     pomodoros.value = pomodoros.value.filter(item => item.id !== id)
+    await focusApi.removePomodoro(id)
   }
 
-  function saveTodo(t: Todo) {
+  async function saveTodo(t: Todo) {
     const index = todos.value.findIndex(item => item.id === t.id)
     if (index > -1)
       todos.value.splice(index, 1, t)
     else
       todos.value.push(t)
+    await focusApi.saveTodo(t)
   }
-  function removeTodo(id: string) {
+  async function removeTodo(id: string) {
     todos.value = todos.value.filter(item => item.id !== id)
+    await focusApi.removeTodo(id)
   }
-  function toggleTodo(id: string) {
+  // 乐观更新：先改本地状态，接口失败不回滚（个人应用可接受，下次进入页面以服务端为准）
+  async function toggleTodo(id: string) {
     const todo = todos.value.find(item => item.id === id)
-    if (todo)
-      todo.done = !todo.done
+    if (!todo)
+      return
+    todo.done = !todo.done
+    await focusApi.saveTodo(todo)
   }
 
-  function saveHabit(h: Habit) {
+  async function saveHabit(h: Habit) {
     const index = habits.value.findIndex(item => item.id === h.id)
     if (index > -1)
       habits.value.splice(index, 1, h)
     else
       habits.value.push(h)
+    await focusApi.saveHabit(h)
   }
-  function removeHabit(id: string) {
+  async function removeHabit(id: string) {
     habits.value = habits.value.filter(item => item.id !== id)
+    await focusApi.removeHabit(id)
   }
-  function toggleHabitCheck(id: string, date = todayStr()) {
+  async function toggleHabitCheck(id: string, date = todayStr()) {
     const habit = habits.value.find(item => item.id === id)
     if (!habit)
       return
@@ -123,18 +205,27 @@ export const useFocusAppStore = defineStore('focus-app', () => {
       habit.records.splice(index, 1)
     else
       habit.records.push(date)
+    await focusApi.saveHabit(habit)
   }
 
-  function saveMemo(m: Memo) {
-    const index = memos.value.findIndex(item => item.id === m.id)
+  async function saveMemo(m: Memo) {
     m.updatedAt = Date.now()
+    const index = memos.value.findIndex(item => item.id === m.id)
     if (index > -1)
       memos.value.splice(index, 1, m)
     else
       memos.value.push(m)
+    await focusApi.saveMemo(m)
   }
-  function removeMemo(id: string) {
+  async function removeMemo(id: string) {
     memos.value = memos.value.filter(item => item.id !== id)
+    await focusApi.removeMemo(id)
+  }
+
+  async function addFocusSession(name: string, minutes: number) {
+    const session: FocusSession = { id: uid(), name, minutes, date: todayStr(), at: Date.now() }
+    focusSessions.value.push(session)
+    await focusApi.addFocusSession(session)
   }
 
   return {
@@ -143,9 +234,10 @@ export const useFocusAppStore = defineStore('focus-app', () => {
     habits,
     memos,
     focusSessions,
+    loaded,
     todayFocusCount,
     todayFocusMinutes,
-    addFocusSession,
+    init,
     savePomodoro,
     removePomodoro,
     saveTodo,
@@ -156,5 +248,6 @@ export const useFocusAppStore = defineStore('focus-app', () => {
     toggleHabitCheck,
     saveMemo,
     removeMemo,
+    addFocusSession,
   }
 })

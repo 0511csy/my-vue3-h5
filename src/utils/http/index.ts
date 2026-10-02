@@ -36,10 +36,10 @@ const axiosInstance: AxiosInstance = Axios.create(configDefault)
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     NProgress.start()
-    // 发送请求前，可在此携带 token
-    // if (token) {
-    //   config.headers['token'] = token
-    // }
+    // 携带访问令牌（.env 的 VITE_API_TOKEN，与后端 AUTH_TOKEN 配对）
+    const token = import.meta.env.VITE_API_TOKEN
+    if (token)
+      config.headers.Authorization = `Bearer ${token}`
     return config
   },
   (error: AxiosError) => {

@@ -3,6 +3,7 @@ import NavBar from '@/components/nav-bar/index.vue'
 import tabbar from '@/components/tabbar/index.vue'
 import { useCachedViewStore } from '@/store/modules/cached-view'
 import { useDarkModeStore } from '@/store/modules/dark-mode'
+import { useFocusAppStore } from '@/store/modules/focus-app'
 
 const cachedViewStore = useCachedViewStore()
 const { cachedViewList } = storeToRefs(cachedViewStore)
@@ -12,6 +13,12 @@ const { theme } = storeToRefs(darkModeStore)
 
 const route = useRoute()
 const hideBar = computed(() => route.meta.hideBar === true)
+
+// 启动时从后端拉取全部业务数据
+const focusAppStore = useFocusAppStore()
+onMounted(() => {
+  focusAppStore.init()
+})
 </script>
 
 <template>
