@@ -8,15 +8,21 @@ defineOptions({ name: 'Habit' })
 
 const store = useFocusAppStore()
 const uiStore = useUiStore()
+const route = useRoute()
 const { habits } = storeToRefs(store)
 
 const freqOptions = ['每天', '工作日', '周末', '每周一', '每周二', '每周三', '每周四', '每周五', '每周六', '每周日']
 
-// 习惯标签色板：按习惯在列表中的顺序取色，日历圆点与列表标签共用
+// 习惯标签色板：按习惯 id 哈希取色（新增/删除不会让其他习惯变色），日历圆点与列表标签共用
 const habitColors = ['#ee0a24', '#ff976a', '#ffc300', '#1989fa', '#07c160', '#7232dd']
 const colorById = computed(() => {
   const map = new Map<string, string>()
-  habits.value.forEach((h, i) => map.set(h.id, habitColors[i % habitColors.length]))
+  habits.value.forEach((h) => {
+    let hash = 0
+    for (let i = 0; i < h.id.length; i++)
+      hash = (hash * 31 + h.id.charCodeAt(i)) >>> 0
+    map.set(h.id, habitColors[hash % habitColors.length])
+  })
   return map
 })
 function habitColor(h: Habit) {
@@ -130,8 +136,15 @@ const editing = ref<Habit>({ id: '', name: '', freq: '每天', records: [] })
 const showFreqPicker = ref(false)
 const freqColumns = freqOptions.map(f => ({ text: f, value: f }))
 
-watch(() => uiStore.addTrigger, () => openNew())
-watch(() => uiStore.todayTrigger, () => backToToday())
+// keep-alive 页面的监听器常驻，需路由守卫防止其他页误触
+watch(() => uiStore.addTrigger, () => {
+  if (route.name === 'Habit')
+    openNew()
+})
+watch(() => uiStore.todayTrigger, () => {
+  if (route.name === 'Habit')
+    backToToday()
+})
 // 选中非今天日期时顶栏显示「回到今天」按钮，选中今天时隐藏
 watch(selectedDate, (v) => {
   uiStore.setBackToTodayVisible(v !== today)
@@ -190,7 +203,7 @@ function remove(h: Habit) {
           <template v-if="cell">
             <button type="button" class="flex cursor-pointer flex-col items-center" @click="openDay(cell)">
               <span
-                class="flex h-[26px] min-w-[26px] items-center justify-center rounded-full px-[4px] text-[13px] transition-colors"
+                class="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[13px] leading-none transition-colors"
                 :class="cellNumClass(cell)"
               >
                 {{ cellDay(cell) }}
@@ -254,7 +267,7 @@ function remove(h: Habit) {
       </van-swipe-cell>
     </div>
 
-    <van-popup v-model:show="showEdit" position="bottom" round class="!pb-[24px]">
+    <van-popup v-model:show="showEdit" position="bottom" round :lock-scroll="false" class="!pb-[24px]">
       <div class="pl-[24px] pt-[24px] pb-[8px] text-left text-[16px] font-bold">
         {{ editing.id ? '编辑习惯' : '新增习惯' }}
       </div>
@@ -279,7 +292,7 @@ function remove(h: Habit) {
       </div>
     </van-popup>
 
-    <van-popup v-model:show="showFreqPicker" position="bottom" round>
+    <van-popup v-model:show="showFreqPicker" position="bottom" round :lock-scroll="false">
       <van-picker
         title="频率"
         :columns="freqColumns"

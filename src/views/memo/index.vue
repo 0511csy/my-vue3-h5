@@ -6,6 +6,7 @@ import { useUiStore } from '@/store/modules/ui'
 defineOptions({ name: 'Memo' })
 
 const router = useRouter()
+const route = useRoute()
 const store = useFocusAppStore()
 const uiStore = useUiStore()
 
@@ -13,7 +14,11 @@ const sortedMemos = computed(() =>
   [...store.memos].sort((a, b) => b.updatedAt - a.updatedAt),
 )
 
-watch(() => uiStore.addTrigger, () => openMemo())
+// keep-alive 页面的监听器常驻，需路由守卫防止其他页误触
+watch(() => uiStore.addTrigger, () => {
+  if (route.name === 'Memo')
+    openMemo()
+})
 
 function fmtTime(ts: number) {
   const d = new Date(ts)

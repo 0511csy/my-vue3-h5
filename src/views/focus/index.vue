@@ -7,6 +7,7 @@ import { useUiStore } from '@/store/modules/ui'
 defineOptions({ name: 'Focus' })
 
 const router = useRouter()
+const route = useRoute()
 const store = useFocusAppStore()
 const uiStore = useUiStore()
 const { pomodoros, todayFocusCount, todayFocusMinutes } = storeToRefs(store)
@@ -14,7 +15,11 @@ const { pomodoros, todayFocusCount, todayFocusMinutes } = storeToRefs(store)
 const showEdit = ref(false)
 const editing = ref<Pomodoro>({ id: '', name: '', minutes: 25 })
 
-watch(() => uiStore.addTrigger, () => openNew())
+// keep-alive 缓存页面的监听器始终存活，必须加路由守卫，否则在其他页点加号这里会隐形弹窗
+watch(() => uiStore.addTrigger, () => {
+  if (route.name === 'Focus')
+    openNew()
+})
 
 function openNew() {
   editing.value = { id: '', name: '', minutes: 25 }

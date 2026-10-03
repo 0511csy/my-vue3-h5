@@ -25,7 +25,7 @@ function onClickRight(event: TouchEvent | MouseEvent) {
     <template #right>
       <span
         v-if="showBackToToday"
-        class="mr-[14px] cursor-pointer rounded-full bg-[var(--van-primary-color)]/10 px-[10px] py-[3px] text-[13px] text-[var(--van-primary-color)]"
+        class="mr-[14px] flex h-[28px] cursor-pointer items-center rounded-full bg-[var(--van-primary-color)]/10 px-[12px] text-[13px] leading-none text-[var(--van-primary-color)]"
         @click.stop="uiStore.triggerToday()"
       >
         回到今天
