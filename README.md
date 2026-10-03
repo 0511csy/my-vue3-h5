@@ -292,26 +292,21 @@ feat(layout): 布局完成
 
 本模板生产环境默认不开启 CDN 加载依赖，如需开启生产环境加载 CDN 依赖，在根目录生产环境变量文件 `.env.production` 中修改 `VITE_CDN_DEPS` 的值为 `true` 重新打包即可。
 
-## 捐赠
+### 最终形态
 
-如果本项目对你有所帮助，可以考虑赞赏一下作者 : D
+| 组件 | 地址 | 说明 |
+| --- | --- | --- |
+| 应用页面 | https://focus-app-64v.pages.dev | 前端，打开即用 |
+| 数据接口 | https://focus-app-api.csy-xixi.workers.dev | 后端，浏览器直开显示 401 是正常的 |
+| 数据库 | Cloudflare D1（focus-db） | 5 张表，云端存储 |
 
-<div align="center">
-  <img src="docs/assets/img/donate.png" alt="donate" style="width:50%;" />
-</div>
-
-## 鸣谢
-
- [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-
- [vant-demo](https://github.com/youzan/vant-demo)
-
- [vue-pure-admin](https://github.com/xiaoxian521/vue-pure-admin)
-
- [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin)
-
-Font Awesome Solid 图标由 [Dave Gandy](https://github.com/FortAwesome/Font-Awesome) 创作，基于 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
-
-## License
-
-[MIT license](https://github.com/yulimchen/vue3-h5-template/blob/master/LICENSE).
+### 日常更新方式
+改了前端代码后重新上线（两条命令，都在 D:\demo\vue3-h5-template 下）
+```
+pnpm build
+npx wrangler pages deploy dist --project-name focus-app --branch main
+```
+改了后端代码后（在 server 目录下）：
+```
+npx wrangler deploy
+```
