@@ -27,3 +27,6 @@ coverage
 
 /src/typings/components.d.ts
 /src/typings/auto-imports.d.ts
+
+# wrangler 本地临时产物（dev 调试缓存）
+server/.wrangler/
