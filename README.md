@@ -1,22 +1,3 @@
-<div align="center">
-  <img src="docs/assets/img/banner.jpg" alt="banner" />
-</div>
-
-<div align="center">
-  <a href="https://github.com/yulimchen/vue3-h5-template/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/yulimchen/vue3-h5-template.svg?style=flat-square" alt="license">
-  </a>
-  <a href="https://github.com/yulimchen/vue3-h5-template/releases">
-    <img src="https://img.shields.io/github/release/yulimchen/vue3-h5-template.svg?style=flat-square" alt="GitHub release">
-  </a>
-  <a href="https://github.com/yulimchen/vue3-h5-template">
-    <img src="https://img.shields.io/github/stars/yulimchen/vue3-h5-template?style=flat-square" alt="GitHub stars">
-  </a>
-  <a href="https://github.com/yulimchen/vue3-h5-template">
-    <img src="https://img.shields.io/github/forks/yulimchen/vue3-h5-template?style=flat-square" alt="GitHub forks">
-  </a>
-</div>
-
 <h1 align="center">Vue3 H5 Template</h1>
 
 **🌱 基于 Vue3 全家桶、TS/JS、Vite 构建工具，开箱即用的移动端项目基础模板**
@@ -38,10 +19,6 @@
 - [x] 首屏加载动画
 - [x] 开发环境调试面板
 - [x] 生产环境 CDN 依赖
-
-**如有 i18n 国际化多语言需求，请切换到 [i18n](https://github.com/yulimchen/vue3-h5-template/tree/i18n) 分支**
-
-**主分支默认 TypeScript，如果你希望使用的是 JavaScript 语言，请切换 [js-version](https://github.com/yulimchen/vue3-h5-template/tree/js-version) 分支进行开发**
 
 ## 在线预览 Preview
 
@@ -65,24 +42,6 @@ pnpm install
 pnpm dev
 ```
 
-[i18n](https://github.com/yulimchen/vue3-h5-template/tree/i18n) 国际化多语言版本 clone 方式
-
-```shell
-# 克隆项目
-git clone -b i18n https://github.com/yulimchen/vue3-h5-template.git
-
-# 同上进入目录&安装依赖等
-cd vue3-h5-template
-```
-
-如果你需要的是基于 `JavaScript` 构建的 H5 项目模板，可切换到 [js-version](https://github.com/yulimchen/vue3-h5-template/tree/js-version) 分支进行开发
-
-```shell
-# 克隆项目
-git clone -b js-version https://github.com/yulimchen/vue3-h5-template.git
-
-# 同上进入目录&安装依赖等
-cd vue3-h5-template
 ```
 
 ## 文档引导
