@@ -82,20 +82,22 @@ axiosInstance.interceptors.response.use(
 )
 
 export const http = {
+  // 响应拦截器已将 { code, result } 解包为 result，运行时返回值就是业务类型 T。
+  // axios 1.21 的方法返回 AxiosResponseResult 条件类型，对未定泛型无法求值，故显式断言。
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return axiosInstance.get(url, config)
+    return axiosInstance.get(url, config) as Promise<T>
   },
   post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return axiosInstance.post(url, data, config)
+    return axiosInstance.post(url, data, config) as Promise<T>
   },
   put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return axiosInstance.put(url, data, config)
+    return axiosInstance.put(url, data, config) as Promise<T>
   },
   delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return axiosInstance.delete(url, config)
+    return axiosInstance.delete(url, config) as Promise<T>
   },
   request<T = any>(config: AxiosRequestConfig): Promise<T> {
-    return axiosInstance.request(config)
+    return axiosInstance.request(config) as Promise<T>
   },
   /**
    * 可取消的请求 — 适用于页面切换时取消未完成的请求

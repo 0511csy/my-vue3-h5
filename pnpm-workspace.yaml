@@ -1,3 +1,5 @@
 allowBuilds:
   rs-module-lexer: true
   vue-demi: true
+  esbuild: true
+  workerd: true

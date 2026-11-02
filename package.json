@@ -43,13 +43,13 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@iconify-icons/fa6-solid": "^1.2.13",
     "@iconify/vue": "^4.3.0",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/mockjs": "^1.0.10",
     "@types/node": "^22.19.0",
     "@types/nprogress": "^0.2.3",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitejs/plugin-vue-jsx": "^5.1.5",
     "@vue/tsconfig": "^0.5.1",
-    "@tailwindcss/postcss": "^4.0.0",
     "cnjm-postcss-px-to-viewport": "^1.0.1",
     "commitlint": "^19.8.1",
     "eslint": "^9.39.1",
@@ -69,7 +69,8 @@
     "vite-plugin-compression2": "^2.5.3",
     "vite-plugin-mock-dev-server": "^2.2.1",
     "vite-plugin-svg-icons-ng": "^1.9.1",
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^2.2.12",
+    "wrangler": "^4.156.0"
   },
   "pnpm": {
     "peerDependencyRules": {
