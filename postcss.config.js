@@ -15,6 +15,7 @@ export default {
       unitToConvert: 'px', // 需要转换的单位
       // tailwindcss v4 将所有 CSS 包裹在 @layer 中，需开启此选项才能处理 @layer 内的规则
       mediaQuery: true,
+      selectorBlackList: [/rounded-(?:[a-z]{1,2}-)?full/],
     },
   },
 }
