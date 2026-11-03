@@ -30,3 +30,8 @@ coverage
 
 # wrangler 本地临时产物（dev 调试缓存）
 server/.wrangler/
+
+# 环境变量含接口令牌，不入库；从 .env.example 复制并填写
+.env.development
+.env.production
+.env.local

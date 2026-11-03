@@ -1,271 +1,156 @@
-<h1 align="center">Vue3 H5 Template</h1>
+<h1 align="center">专注番茄钟 Focus App</h1>
 
-**🌱 基于 Vue3 全家桶、TS/JS、Vite 构建工具，开箱即用的移动端项目基础模板**
+**🌱 一套自托管的移动端效率应用：番茄钟 + 待办 + 习惯打卡 + 备忘录，前端基于 [vue3-h5-template](https://github.com/yulimchen/vue3-h5-template) 二次开发，后端为 Cloudflare Workers + D1 的无服务器架构，全链路 0 元托管**
 
-- [x] ⚡ Vue3 + Vite8
-- [x] 🍕 TypeScript
-- [x] ✨ Vant4 组件库
-- [x] 🌀 Tailwindcss 原子类框架
-- [x] 👏 集成多种图标方案
-- [x] 🍍 Pinia 状态管理
-- [x] 🌓 支持深色模式
-- [x] 🧀 支持 i18n
-- [x] Vue-router 4
-- [x] vmin 视口适配
-- [x] Axios 封装
-- [x] 打包资源 gzip 压缩
-- [x] 开发环境支持 Mock 数据
-- [x] ESLint
-- [x] 首屏加载动画
-- [x] 开发环境调试面板
-- [x] 生产环境 CDN 依赖
+由两部分组成：
 
-## 在线预览 Preview
+- **前端**（仓库根目录，Vue3 + TypeScript + Vant4 + Tailwindcss）：四个业务页面 + 底部导航，数据通过 REST 接口与云端同步
+- **后端**（`server/`，Hono + Drizzle ORM + Cloudflare D1）：5 组 REST 路由 + Bearer Token 鉴权 + 5 张业务表，部署在 Cloudflare 边缘网络
 
-👓 [点击这里](https://yulimchen.github.io/vue3-h5-template/)（PC浏览器请切换手机端模式）
+> ## 🙏 致谢 —— 感谢模板作者
+>
+> 本项目基于模板作者 **[yulimchen](https://github.com/yulimchen)** 的开源项目二次开发：
+>
+> - **[vue3-h5-template](https://github.com/yulimchen/vue3-h5-template)** —— Vue3 + Vite + TS + Vant4 + Tailwindcss 开箱即用的移动端基础模板（MIT 协议）
+>
+> 模板的工程化能力（按需引入、视口适配、Axios 封装、Mock、ESLint、深色模式等）均来自上游模板，特此致谢。模板能力说明见其 [README](https://github.com/yulimchen/vue3-h5-template#readme)。
 
-## 运行项目
+## 核心功能
 
-注意：要求 Node 版本 20+，可使用 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) 进行本地 Node 版本管理，同时建议使用 [pnpm](https://pnpm.io/zh/installation) 包管理器。
+### 🍅 番茄钟
 
-```shell
-# 克隆项目
-git clone https://github.com/yulimchen/vue3-h5-template.git
+- **番茄闹钟列表**：默认 25 / 15 / 10 分钟三档，右上角加号新增（底部弹窗：事项名称 + 时长步进器），左滑编辑/删除
+- **专注计时页**：进度圆环 100ms 步进平滑移动 + 大号倒计时，暂停/继续为圆形图标按钮，结束时手机震动 + 弹窗提醒
+- **专注统计**：自然计时完成后自动记录，首页展示「今日已完成 X 次专注 / 累计专注 Y 分钟」，完成弹窗同步播报
+- **待办联动**：待办事项可一键「转为番茄闹钟」（弹窗内再确认名称/优先级/日期/时长）
 
-# 进入项目目录
-cd vue3-h5-template
+### ✅ 待办
 
-# 安装依赖
-pnpm install
+- 任务列表：复选框圆角样式，点击整行切换完成状态，已完成项置底变灰加删除线
+- 最后一行直接输入回车即新增；左滑编辑/删除
+- 编辑弹窗：任务名称、优先级（无/低/中/高彩色标签）
+- 一键转化：「转为番茄闹钟」「转为习惯打卡」
 
-# 启动服务
-pnpm dev
-```
+### 📅 习惯打卡
 
-```
+- **自定义月历**：可翻月；今天实心圆、选中日期圆环描边、有打卡记录的日期显示各习惯彩色圆点（超过 4 个折叠为图标）
+- **点击任意日期**：列表直接切换为该日打卡情况，顶栏出现「回到今天」快捷按钮
+- **打卡列表**：习惯名称 + 频率 + 累计天数，颜色标签与日历圆点同色（按习惯 id 哈希固定，新增/删除不影响其他习惯）
+- 新增/编辑弹窗：习惯名称 + 频率（每天/工作日/周末/每周一~日）
 
-## 文档引导
+### 📝 备忘录
 
-> - [按需引入 vant 组件](#vant)
-> - [图标使用](#icon)
-> - [路由缓存 & 命名注意 ⚠](#router)
-> - [调试面板 eruda](#console)
-> - [动态设置页面标题](#page-title)
-> - [vw 视口适配](#viewport)
-> - [Tailwindcss 原子类框架](#tailwindcss)
-> - [Git 提交信息规范](#git)
-> - [CDN 加载依赖](#CDN)
+- 列表按修改时间倒序，显示标题 + 时间，左滑删除
+- 富文本编辑页：加粗/斜体/下划线/列表/标题工具栏，与浏览器选区同步的激活态高亮，右上角「完成」保存
 
-### <span id="vant">按需引入 vant 组件</span>
+### 🧭 布局与主题
 
-全量引入组件库太过臃肿，项目中使用 `unplugin-vue-components` 插件进行按需自动引入组件，可通过[官方文档](https://vant-ui.github.io/vant/#/zh-CN/quickstart#2.-pei-zhi-cha-jian)了解更多。
+- 顶栏统一承载页面标题、各页新增按钮、「回到今天」、日夜模式切换（View Transition 圆形扩散动画）
+- 底部导航：专注 / 待办 / 习惯 / 备忘录；计时页与编辑页自动隐藏导航
+- 全局弹窗统一美化：圆角、留白、确认按钮带主题色背景、删除确认红色警示
 
-### <span id="icon">图标使用</span>
-
-① **Iconify 图标（推荐）**
-
-Iconify 拥有图标数量超过 20 万的图标库，同时文档比较友好，本项目基于 `Iconify for Vue` 稍微进行了封装。
-
-使用方法 ⑴：
-
-![Snipaste_2024-06-27_00-00-17](docs/assets/img/Snipaste_2024-06-27_00-00-17.png)
-
-基于 Iconify [图标集网站](https://icon-sets.iconify.design/)获取到你想要的图标名称后填入 `i-icon` 组件的 `icon` 属性即可。
-
-```vue
-<i-icon icon="fa6-solid:heart" />
-```
-
-配合 VS Code [编辑器扩展](https://marketplace.visualstudio.com/items?itemName=antfu.iconify)可在编码时实时预览图标！
-
-![Snipaste_2024-06-27_00-43-17](docs/assets/img/Snipaste_2024-06-27_00-44-55.png)
-
-注意，方法 ⑴ 是通过 Iconify API 按需请求获取图标，如果你的项目仅在内网环境部署，可通过👇🏻方法 ⑵ 离线使用图标。
-
-使用方法 ⑵ ：
-
-基于 Iconify [图标集网站](https://icon-sets.iconify.design/)搜索到你想要的图标，安装图标对应的图标集依赖包。
-
-```shell
-pnpm i -D @iconify-icons/fa6-solid
-```
-
-*依赖包名规则：@iconify-icons/[图标集]*
-
-![Snipaste_2024-06-27_00-07-10](docs/assets/img/Snipaste_2024-06-27_00-07-10.png)
-
-引入你想要的图标 data，赋值给 `i-icon` 组件的 `icon` 属性即可。
-
-*图标路径规则：@iconify-icons/[图标集]/[图标名]*
-
-```ts
-import Fa6SolidHeart from '@iconify-icons/fa6-solid/heart'
-```
-
-```vue
-<i-icon :icon="Fa6SolidHeart" />
-```
-
-案例代码可参考本项目的 `tools` [页面](https://github.com/yulimchen/vue3-h5-template/blob/master/src/views/tools/index.vue)，想对强大的 Iconify 了解更多？请戳 👉 https://iconify.design/docs/
-
-② 本地 SVG 文件图标
-
-> 1. 将 svg 图标文件放在 `src/icons/svg` 目录下
-> 2. 在项目中直接使用 `<svg-icon name="svg图标文件命名" />` 即可
-
-例如：
-
-本项目 `src/icons/svg` 中放了个叫 `check-in.svg` 的图标文件，然后在组件 `name` 属性中填入文件的命名即可，So easy~
-
-```Vue
-<svg-icon name="check-in" />
-```
-
-> 项目中使用了 `unplugin-vue-components` 自动引入组件，所以 `main.ts` 中无需注册全局图标组件。
-
-### <span id="router">路由缓存 & 命名注意 ⚠</span>
-
-组件默认开启缓存，如某个组件需关闭缓存，在对应路由 `meta` 内的 `noCache` 字段赋值为 `true` 即可。
-
-```typescript
-// src/router/routes.ts
-const routes: Array<RouteRecordRaw> = [
-  // ...
-  {
-    path: 'about',
-    name: 'About',
-    component: () => import('@/views/about/index.vue'),
-    meta: {
-      title: '关于',
-      noCache: true
-    }
-  }
-]
-```
-
- 为了保证页面能被正确缓存，请确保**组件**的 `name` 值和对应路由的 `name` 命名完全相同。
-
-```vue
-<!-- src/views/about/index.vue -->
-<script setup lang="ts">
-// Vue3.3+ defineOptions 宏
-defineOptions({
-  name: 'About'
-})
-</script>
-
-<template>
-  <div>about</div>
-</template>
-```
-
-### <span id="console">调试面板 eruda</span>
-
-![](docs/assets/img/Snipaste_2023-05-04_21-58-28.png)
-
-为了方便移动端查看 log 信息和调试，开发环境会动态加载 eruda 调试面板（通过 `src/main.ts` 按需注入 CDN 脚本）。如果你的开发环境不需要的话请在 `.env.development` 中修改值
-
-```html
-# .env.development
-
-# 开发环境启用 cdn eruda 调试工具。若不启用，将 true 修改为 false 或其他任意值即可
-VITE_ENABLE_ERUDA = "true"
-```
-
-### <span id="page-title">动态设置页面标题</span>
-
-在路由全局前置守卫中：
-
-```ts
-// src/router/index.ts
-// ...
-router.beforeEach((to: ToRouteType, from, next) => {
-  // ...
-  // 页面 title
-  setPageTitle(to.meta.title)
-  next()
-})
-```
-
-具体实现方法见文件 `src/utils/set-page-title.ts` 。
-
-### <span id="mock">开发环境 Mock</span>
-
-> 本项目开发环境支持 mock 请求数据，在 `mock` 目录中可配置接口和数据，具体见[文档](https://github.com/pengzhanbo/vite-plugin-mock-dev-server/blob/main/README.zh-CN.md)。
-
-### <span id="viewport">vw 视口适配</span>
-
-使用 `cnjm-postcss-px-to-viewport` 进行视口适配，相关配置见项目根目录下 `postcss.config.js`。
-
-```js
-// postcss.config.js
-module.exports = {
-  plugins: {
-    // 使用 cnjm-postcss-px-to-viewport 规避 postcss.plugin was deprecated 警告
-    'cnjm-postcss-px-to-viewport': {
-      viewportWidth: 375, // 根据设计稿设定
-      minPixelValue: 1, // 最小的转换数值
-      unitPrecision: 2 // 转化精度，转换后保留位数
-    },
-    'autoprefixer': {
-      overrideBrowserslist: ['Android >= 4.0', 'iOS >= 7']
-    }
-  }
-}
-```
-
-### <span id="tailwindcss">Tailwindcss 原子类框架</span>
-
-Tailwindcss 从 3.0 版本开始默认使用 `JIT` 模式，打包代码不再臃肿，结合 `vite` 使用非常香~ 如果你还没使用过类似的框架，Tailwindcss 首页的[示例](https://tailwindcss.com/)非常直观。
-
-官方文档：https://tailwindcss.com/docs/padding
-
-### <span id="git">Git 提交信息规范</span>
-
-项目使用 `husky` 规范 Git 提交信息，遵循社区主流的 [Angular](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 规范。
-
-```
-feat 增加新功能
-fix 修复问题/BUG
-style 代码风格相关无影响运行结果的
-perf 优化/性能提升
-refactor 重构
-revert 撤销修改
-test 测试相关
-docs 文档/注释
-chore 依赖更新/脚手架配置修改等
-workflow 工作流改进
-ci 持续集成
-types 类型定义文件更改
-wip 开发中
-```
-
-```
-// 格式
-<type>(<scope>): <subject>
-// 示例
-feat(layout): 布局完成
-```
-
-### <span id="CDN">CDN 生产环境依赖</span>
-
-本模板生产环境默认不开启 CDN 加载依赖，如需开启生产环境加载 CDN 依赖，在根目录生产环境变量文件 `.env.production` 中修改 `VITE_CDN_DEPS` 的值为 `true` 重新打包即可。
-
-### 最终形态
+## 在线地址
 
 | 组件 | 地址 | 说明 |
 | --- | --- | --- |
-| 应用页面 | https://focus-app-64v.pages.dev | 前端，打开即用 |
-| 数据接口 | https://focus-app-api.csy-xixi.workers.dev | 后端，浏览器直开显示 401 是正常的 |
-| 数据库 | Cloudflare D1（focus-db） | 5 张表，云端存储 |
+| 应用页面 | https://focus-app-64v.pages.dev | 前端（Cloudflare Pages），打开即用 |
+| 数据接口 | https://focus-app-api.csy-xixi.workers.dev | 后端（Cloudflare Workers），浏览器直开返回 401 是鉴权生效的正常表现 |
+| 数据库 | Cloudflare D1（focus-db） | 5 张业务表，云端存储 |
 
-### 日常更新方式
-改了前端代码后重新上线（两条命令，都在 D:\demo\vue3-h5-template 下）
+> ⚠️ `pages.dev` / `workers.dev` 域名在中国大陆网络受 DNS 污染与 SNI 阻断影响，访问需开代理；绑定自有域名后可直连（后端代码零改动）。
+
+## 目录结构
+
+```text
+src/
+  api/
+    focus.ts                     业务接口封装（番茄钟/待办/习惯/备忘录/专注记录 5 组）
+  store/modules/
+    focus-app.ts                 全局业务数据 store（启动拉取云端 + 乐观更新 + 旧数据自动迁移）
+    ui.ts                        顶栏触发信号（加号/回到今天的跨页联动）
+  views/
+    focus/                       番茄钟（index 列表页 + timer 专注计时页）
+    todo/                        待办事项
+    habit/                       习惯打卡（自定义月历）
+    memo/                        备忘录（index 列表 + edit 富文本编辑）
+  components/
+    nav-bar/                     顶栏（标题 / 加号 / 回到今天 / 日夜切换）
+    tabbar/                      底部导航
+  layout/index.vue               应用外壳（keep-alive 缓存 + 启动时拉取数据）
+  utils/http/                    axios 封装（Bearer Token、错误 Toast、NProgress、可取消请求）
+server/
+  src/index.ts                   Hono 路由（5 组 REST + CORS + Bearer Token 鉴权）
+  src/schema.ts                  Drizzle 表结构（pomodoros / todos / habits / memos / focus_sessions）
+  drizzle/                       迁移 SQL（wrangler d1 execute 应用）
+  wrangler.jsonc                 Worker 配置（D1 绑定、AUTH_TOKEN）
+mock/                            开发环境 Mock 数据（vite-plugin-mock-dev-server）
+.github/workflows/main.yml      push 到 master 自动构建 GitHub Pages 镜像站
 ```
+
+## 本地启动
+
+> 前置要求：Node 20+（本机通过 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) 管理）、[pnpm](https://pnpm.io/zh/installation) 包管理器。后端已部署在 Cloudflare，**本地开发直连线上接口**，无需本地起后端。
+
+1. 安装依赖并启动前端：
+
+   ```shell
+   pnpm install
+   pnpm dev
+   ```
+
+2. 浏览器访问提示的本地地址（如 http://localhost:5173），**需开启代理**（接口域名在大陆被阻断）。
+
+3. （可选）修改后端代码后重新部署，在 `server/` 目录执行：
+
+   ```shell
+   pnpm deploy          # 等价于 wrangler deploy，数秒生效
+   ```
+
+## 部署方式（Cloudflare 全托管，0 元）
+
+前端与后端各部署一次，之后更新只需两步：
+
+```shell
+# 前端：根目录执行
 pnpm build
 npx wrangler pages deploy dist --project-name focus-app --branch main
+
+# 后端：server 目录执行（仅改了后端代码时需要）
+cd server
+pnpm deploy
 ```
-改了后端代码后（在 server 目录下）：
-```
-npx wrangler deploy
-```
+
+### 后端从零部署（换机器 / 重建环境时）
+
+1. `wrangler login` 登录 Cloudflare 账号
+2. `wrangler d1 create focus-db` 创建数据库，将输出的 `database_id` 填入 `server/wrangler.jsonc`
+3. `wrangler d1 execute focus-db --remote --file=./drizzle/0000_minor_shatterstar.sql` 远程建表
+4. `pnpm deploy` 部署 Worker，然后 `echo "<你的令牌>" | wrangler secret put AUTH_TOKEN` 配置访问令牌（Secret 存于 Cloudflare，不入仓库）；前端 `.env*` 的 `VITE_API_TOKEN` 填同一值
+5. 将 Worker 地址填入 `.env.development` / `.env.production` 的 `VITE_BASE_API`，重新构建前端
+
+### 数据安全
+
+- 所有业务数据存云端 D1，本地 localStorage 仅作旧版本迁移来源（首次启动自动上云并清理）
+- 接口令牌通过 **Cloudflare Secrets**（后端）与**本地环境变量**（前端）管理，均不提交到仓库；新环境从 `.env.example` 复制并填写
+- 诚实说明：令牌随前端打包后存在于页面 JS 中，**能拿到打包产物的人即可提取**——这是单令牌 + 前端直连方案的固有上限，防的是匿名爬取与误用，不防定向提取。要彻底解决需演进为多用户账号体系（见 Roadmap）
+
+## Roadmap
+
+- [ ] 多用户：登录注册（JWT + PBKDF2）+ 数据按 `user_id` 隔离，访客自行注册，演示与私有数据分离
+- [ ] 绑定自有域名，摆脱 `pages.dev` / `workers.dev` 在大陆的访问限制
+
+## 模板能力说明
+
+工程化能力（图标使用、路由缓存与命名约定、eruda 调试面板、vw 视口适配、Tailwindcss、Mock 数据、Git 提交规范、CDN 依赖等）均继承自上游模板，完整文档见 **[vue3-h5-template README](https://github.com/yulimchen/vue3-h5-template#readme)**。
+
+本仓库额外约定：
+
+- 路由 `meta.showAdd: true` 启用顶栏加号；`meta.hideBar: true` 隐藏顶栏与底部导航（计时页/编辑页）
+- 页面监听 `uiStore.addTrigger` / `todayTrigger` 时必须带 `route.name === '页面名'` 守卫（keep-alive 页面的 watcher 常驻，否则跨页误触）
+- Git 提交遵循 [Angular 规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular)（`feat` / `fix` / `chore` / `ci` …），由 husky + commitlint 强制校验
+
+## 许可证
+
+模板部分遵循上游 [MIT 协议](LICENSE)；本项目的业务代码同样以 MIT 协议发布。
+
+> ⚠️ 本项目为个人自用工具：接口令牌即单租户数据防线，请勿泄露自用令牌；访客演示请等待多用户版本。

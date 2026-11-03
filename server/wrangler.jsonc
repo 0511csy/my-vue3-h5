@@ -12,10 +12,7 @@
 			"database_id": "4970c429-f018-40e1-a026-901691b36aec"
 		}
 	],
-	// 访问令牌：所有请求需携带 Authorization: Bearer <token>，与前端 .env 的 VITE_API_TOKEN 保持一致
-	"vars": {
-		"AUTH_TOKEN": "c317b7f878c82c798f581942f394b39b728ac1144ae5d3b0"
-	},
+	// 访问令牌通过 Cloudflare Secret 管理（wrangler secret put AUTH_TOKEN），不写入仓库
 	"observability": {
 		"enabled": true
 	}
