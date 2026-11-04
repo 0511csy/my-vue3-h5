@@ -1,1 +1,0 @@
-import{Xt as e}from"./index-DRpJzS34.js";var t=0;function n(){let{name:n=`unknown`}=e()?.type||{};return`${n}-${++t}`}export{n as t};
