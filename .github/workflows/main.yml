@@ -25,10 +25,18 @@ jobs:
           version: 11
           run_install: false
 
-      - name: Deploy 🔧
+      - name: Generate .env.production 🔧
+        run: |
+          cat > .env.production <<EOF
+          VITE_BASE_API = "${{ secrets.VITE_BASE_API }}"
+          VITE_PUBLIC_PATH = "/my-vue3-h5/"
+          VITE_API_TOKEN = "${{ secrets.VITE_API_TOKEN }}"
+          VITE_CDN_DEPS = "false"
+          EOF
+
+      - name: Build 🔧
         run: |
           pnpm install --no-frozen-lockfile
-          sed -i "s#VITE_PUBLIC_PATH = \"/\"#VITE_PUBLIC_PATH = /my-vue3-h5/#g" $(pwd)/.env.production
           pnpm build
 
       - name: Deploy 🚀
