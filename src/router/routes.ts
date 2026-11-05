@@ -9,6 +9,16 @@ const routes: Array<RouteRecordRaw> = [
     redirect: { name: 'Focus' },
     children: [
       {
+        path: 'login',
+        name: 'Login',
+        component: () => import('@/views/login/index.vue'),
+        meta: {
+          title: '登录',
+          noCache: true,
+          hideBar: true,
+        },
+      },
+      {
         path: 'focus',
         name: 'Focus',
         component: () => import('@/views/focus/index.vue'),

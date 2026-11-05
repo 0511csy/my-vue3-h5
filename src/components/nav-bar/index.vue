@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { showConfirmDialog } from 'vant'
 import { computed } from 'vue'
+import { useAuthStore } from '@/store/modules/auth'
 import { useDarkModeStore } from '@/store/modules/dark-mode'
 import { useUiStore } from '@/store/modules/ui'
 
@@ -8,6 +10,7 @@ const route = useRoute()
 
 const darkModeStore = useDarkModeStore()
 const { isDark } = storeToRefs(darkModeStore)
+const authStore = useAuthStore()
 const uiStore = useUiStore()
 
 const iconName = computed(() => isDark.value ? 'light' : 'dark')
@@ -17,6 +20,18 @@ const showBackToToday = computed(() => route.meta.showToday === true && uiStore.
 
 function onClickRight(event: TouchEvent | MouseEvent) {
   darkModeStore.toggleDarkMode(event)
+}
+
+function onClickLogout() {
+  showConfirmDialog({
+    title: '退出登录',
+    message: `确定退出账号 ${authStore.username} 吗？`,
+  }).then(() => {
+    authStore.logout()
+    // 整页刷新以清空所有内存态业务数据
+    location.hash = '#/login'
+    location.reload()
+  }).catch(() => {})
 }
 </script>
 
@@ -37,6 +52,13 @@ function onClickRight(event: TouchEvent | MouseEvent) {
         class="mr-[14px]"
         @click.stop="uiStore.triggerAdd()"
       />
+      <span
+        class="mr-[10px] max-w-[72px] cursor-pointer truncate text-[13px] text-[var(--van-text-color-2)]"
+        title="退出登录"
+        @click.stop="onClickLogout"
+      >
+        {{ authStore.username }}
+      </span>
       <svg-icon class="text-[18px]" :name="iconName" />
     </template>
   </van-nav-bar>

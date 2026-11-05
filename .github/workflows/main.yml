@@ -30,7 +30,6 @@ jobs:
           cat > .env.production <<EOF
           VITE_BASE_API = "${{ secrets.VITE_BASE_API }}"
           VITE_PUBLIC_PATH = "/my-vue3-h5/"
-          VITE_API_TOKEN = "${{ secrets.VITE_API_TOKEN }}"
           VITE_CDN_DEPS = "false"
           EOF
 

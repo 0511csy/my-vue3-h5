@@ -36,8 +36,8 @@ const axiosInstance: AxiosInstance = Axios.create(configDefault)
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     NProgress.start()
-    // 携带访问令牌（.env 的 VITE_API_TOKEN，与后端 AUTH_TOKEN 配对）
-    const token = import.meta.env.VITE_API_TOKEN
+    // 携带登录 JWT（auth store 写入，key 需保持一致）
+    const token = localStorage.getItem('focus_jwt')
     if (token)
       config.headers.Authorization = `Bearer ${token}`
     return config
@@ -71,6 +71,18 @@ axiosInstance.interceptors.response.use(
     NProgress.done()
     // 被取消的请求不弹出错误提示
     if (Axios.isCancel(error)) {
+      return Promise.reject(error)
+    }
+    // JWT 失效/未登录：清凭据并跳转登录页（登录/注册接口自身的失败不在此列）
+    const url = error.config?.url ?? ''
+    if (error.response?.status === 401 && !url.includes('/auth/')) {
+      localStorage.removeItem('focus_jwt')
+      localStorage.removeItem('focus_username')
+      if (!location.hash.startsWith('#/login')) {
+        showFailToast('登录已失效，请重新登录')
+        location.hash = '#/login'
+        location.reload()
+      }
       return Promise.reject(error)
     }
     // 处理 HTTP 网络错误
