@@ -1,0 +1,1 @@
+import{Gt as e}from"./index-DT-dT3x1.js";var t=0;function n(){let{name:n=`unknown`}=e()?.type||{};return`${n}-${++t}`}export{n as t};
