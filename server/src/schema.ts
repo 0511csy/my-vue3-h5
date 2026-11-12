@@ -3,10 +3,12 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 // 表结构与前端 src/store/modules/focus-app.ts 中的 interface 一一对应
 
 // 用户表：密码为 PBKDF2-SHA256（10 万次迭代）哈希，格式 `salt:hash`（均为 hex）
+// passwordChangedAt 用于强制下线：JWT 的 iat 早于该时间戳的会话视为过期
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   username: text('username').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
+  passwordChangedAt: integer('password_changed_at').notNull().default(0),
   createdAt: integer('created_at').notNull(),
 })
 

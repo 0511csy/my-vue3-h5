@@ -15,6 +15,13 @@
       "when": 1793809310616,
       "tag": "0001_fluffy_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794063101352,
+      "tag": "0002_rainy_reavers",
+      "breakpoints": true
     }
   ]
 }

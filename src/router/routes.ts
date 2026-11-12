@@ -19,6 +19,16 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: 'reset',
+        name: 'Reset',
+        component: () => import('@/views/reset/index.vue'),
+        meta: {
+          title: '重置密码',
+          noCache: true,
+          hideBar: true,
+        },
+      },
+      {
         path: 'focus',
         name: 'Focus',
         component: () => import('@/views/focus/index.vue'),

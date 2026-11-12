@@ -23,5 +23,10 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = ''
   }
 
-  return { token, username, isLoggedIn, login, register, logout }
+  // 改密成功后服务端会使所有旧会话失效，调用方需引导重新登录
+  async function changePassword(oldPassword: string, newPassword: string) {
+    await http.post('/account/change-password', { oldPassword, newPassword })
+  }
+
+  return { token, username, isLoggedIn, login, register, logout, changePassword }
 })

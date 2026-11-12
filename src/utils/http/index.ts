@@ -54,12 +54,8 @@ axiosInstance.interceptors.response.use(
     NProgress.done()
     // 与后端协定的返回字段
     const { code, result } = response.data
-    // 判断请求是否成功
-    const isSuccess
-      = result
-        && Reflect.has(response.data, 'code')
-        && code === ResultEnum.SUCCESS
-    if (isSuccess) {
+    // 判断请求是否成功：只看 code，result 允许为 null（删除类接口不返回数据）
+    if (Reflect.has(response.data, 'code') && code === ResultEnum.SUCCESS) {
       return result
     }
     else {

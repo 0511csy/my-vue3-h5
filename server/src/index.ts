@@ -4,8 +4,8 @@ import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { authApp } from './auth'
-import { verifyJwt } from './jwt'
-import { focusSessions, habits, memos, pomodoros, todos } from './schema'
+import { hashPassword, verifyJwt, verifyPassword } from './jwt'
+import { focusSessions, habits, memos, pomodoros, todos, users } from './schema'
 
 const app = new Hono<AppEnv>()
 
@@ -15,8 +15,9 @@ app.use('*', cors())
 const ok = (result: unknown) => ({ code: 0, message: 'OK', result })
 
 // ---- 鉴权中间件 ----
-// /auth/*（注册/登录/站长引导）与根路径健康检查公开，其余一律要求有效 JWT，
-// 验证通过后将 userId 注入上下文，业务路由据此做数据隔离
+// /auth/*（注册/登录/站长引导）与根路径健康检查公开，其余一律要求有效 JWT。
+// 验签通过后加载用户做两级校验：账号仍存在、JWT 签发时间（iat）晚于最近一次改密时间
+// （改密即强制下线所有旧会话），最后将 userId 注入上下文供业务路由隔离数据
 app.use('*', async (c, next) => {
   const path = c.req.path
   if (path === '/' || path.startsWith('/auth/'))
@@ -25,13 +26,38 @@ app.use('*', async (c, next) => {
   const payload = c.env.JWT_SECRET && token ? await verifyJwt(token, c.env.JWT_SECRET) : null
   if (!payload || typeof payload.sub !== 'string')
     return c.json({ code: 1, message: '未授权，请登录', result: null }, 401)
-  c.set('userId', payload.sub)
+  const db = drizzle(c.env.DB)
+  const user = await db.select().from(users).where(eq(users.id, payload.sub)).get()
+  if (!user)
+    return c.json({ code: 1, message: '未授权，请登录', result: null }, 401)
+  const issuedAtMs = typeof payload.iat === 'number' ? payload.iat * 1000 : 0
+  if (issuedAtMs < user.passwordChangedAt)
+    return c.json({ code: 1, message: '密码已修改，请重新登录', result: null }, 401)
+  c.set('userId', user.id)
   await next()
 })
 
 app.route('/auth', authApp)
 
 app.get('/', c => c.text('focus-app api is running'))
+
+// ---- 修改密码（需登录）----
+// 成功后更新 passwordChangedAt，中间件会使所有旧会话立即失效
+app.post('/account/change-password', async (c) => {
+  const body = await c.req.json()
+  if (typeof body.oldPassword !== 'string' || body.oldPassword.length === 0)
+    return c.json({ code: 1, message: '请输入旧密码', result: null })
+  if (typeof body.newPassword !== 'string' || body.newPassword.length < 6 || body.newPassword.length > 64)
+    return c.json({ code: 1, message: '新密码长度需为 6-64 位', result: null })
+  const db = drizzle(c.env.DB)
+  const user = await db.select().from(users).where(eq(users.id, c.get('userId'))).get()
+  if (!user || !(await verifyPassword(body.oldPassword, user.passwordHash)))
+    return c.json({ code: 1, message: '旧密码错误', result: null })
+  await db.update(users)
+    .set({ passwordHash: await hashPassword(body.newPassword), passwordChangedAt: Date.now() })
+    .where(eq(users.id, user.id))
+  return c.json(ok(null))
+})
 
 // ---- 番茄闹钟 ----
 app.get('/pomodoros', async (c) => {

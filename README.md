@@ -81,7 +81,8 @@
 - 数据按 `user_id` 全链路隔离：每条 SQL 带用户过滤，跨用户写/删在服务端被拒（实测：持他账号 JWT 伪造同 id 写入与删除均无效）
 - 未登录访问任意页面被路由守卫拦截到登录页；JWT 过期由 axios 拦截器统一捕获，清凭据跳登录
 - 站长引导：`/auth/setup`（需旧单租户令牌）创建站长账号并继承历史数据，完成单租户 → 多用户的无损迁移
-- 顶栏显示当前用户名，点击可退出登录
+- 修改密码：`/account/change-password` 校验原密码后更新哈希，并记录 `password_changed_at`；鉴权中间件比对 JWT 签发时间（`iat`），**改密即强制下线该账号所有旧会话**（他人盗用的 token 随之失效）
+- 侧边抽屉：点击顶栏用户名打开，含日/夜模式切换、修改密码、退出登录
 
 ### 🧭 布局与主题
 
@@ -111,6 +112,7 @@ src/
     ui.ts                        顶栏触发信号（加号/回到今天的跨页联动）
   views/
     login/                       登录/注册一体页
+    reset/                       修改密码页
     focus/                       番茄钟（index 列表页 + timer 专注计时页）
     todo/                        待办事项
     habit/                       习惯打卡（自定义月历）
@@ -122,7 +124,7 @@ src/
   router/                        路由 + 登录守卫（未登录重定向 /login）
   utils/http/                    axios 封装（JWT 注入、401 跳登录、错误 Toast、NProgress、可取消请求）
 server/
-  src/index.ts                   Hono 路由（JWT 鉴权中间件 + 5 组 REST，全部按 user_id 隔离）
+  src/index.ts                   Hono 路由（JWT 鉴权中间件 + 改密 + 5 组 REST，全部按 user_id 隔离）
   src/auth.ts                    /auth 路由（register / login / setup 站长引导）
   src/jwt.ts                     JWT(HS256) 签发验证 + PBKDF2-SHA256 密码哈希（纯 crypto.subtle）
   src/schema.ts                  Drizzle 表结构（users + 5 张业务表，均含 user_id）
@@ -169,7 +171,7 @@ pnpm deploy
 
 1. `wrangler login` 登录 Cloudflare 账号
 2. `wrangler d1 create focus-db` 创建数据库，将输出的 `database_id` 填入 `server/wrangler.jsonc`
-3. `wrangler d1 execute focus-db --remote --file=./drizzle/0000_minor_shatterstar.sql` 与 `--file=./drizzle/0001_*.sql` 远程建表（users 表 + 业务表 user_id 列）
+3. `wrangler d1 execute focus-db --remote --file=./drizzle/<文件名>.sql` 依次执行 `drizzle/` 下的 `0000` / `0001` / `0002` 三个迁移（业务表 → users 表与 user_id 列 → 改密时间列）
 4. `pnpm deploy` 部署 Worker，然后配置两个 Cloudflare Secrets（均不入仓库）：
    `echo "<jwt密钥>" | wrangler secret put JWT_SECRET`（签名密钥，随机 32 字节 hex 即可）
    `echo "<引导令牌>" | wrangler secret put AUTH_TOKEN`（站长引导用，随机即可）

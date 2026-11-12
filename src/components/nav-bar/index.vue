@@ -7,11 +7,13 @@ import { useDarkModeStore } from '@/store/modules/dark-mode'
 import { useUiStore } from '@/store/modules/ui'
 
 const route = useRoute()
+const router = useRouter()
 
 const darkModeStore = useDarkModeStore()
 const { isDark } = storeToRefs(darkModeStore)
 const authStore = useAuthStore()
 const uiStore = useUiStore()
+const show = ref(false)
 
 const iconName = computed(() => isDark.value ? 'light' : 'dark')
 const title = computed(() => (route.meta.title as string) ?? '')
@@ -29,14 +31,22 @@ function onClickLogout() {
   }).then(() => {
     authStore.logout()
     // 整页刷新以清空所有内存态业务数据
+    show.value = false
     location.hash = '#/login'
     location.reload()
   }).catch(() => {})
 }
+function openPopup() {
+  show.value = true
+}
+function toReset() {
+  show.value = false
+  router.push('/reset')
+}
 </script>
 
 <template>
-  <van-nav-bar :title="title" fixed placeholder @click-right="onClickRight">
+  <van-nav-bar :title="title" fixed placeholder>
     <template #right>
       <span
         v-if="showBackToToday"
@@ -54,14 +64,35 @@ function onClickLogout() {
       />
       <span
         class="mr-[10px] max-w-[72px] cursor-pointer truncate text-[13px] text-[var(--van-text-color-2)]"
-        title="退出登录"
-        @click.stop="onClickLogout"
+        @click.stop="openPopup()"
       >
         {{ authStore.username }}
       </span>
-      <svg-icon class="text-[18px]" :name="iconName" />
+      <!-- <svg-icon class="text-[18px]" :name="iconName" /> -->
     </template>
   </van-nav-bar>
+  <van-popup v-model:show="show" position="left" :style="{ width: '40%', height: '100%' }">
+    <div class="mt-[20px]">
+      <span class="text-[13px] text-[var(--van-text-color-2)] ml-[14px]"><van-icon name="user-circle-o" color="#fff" size="20" class="mr-[6px]" />{{ authStore.username }}</span>
+      <van-cell class="mt-[20px]" @click="onClickRight">
+        <template #title>
+          <div class="flex items-center ">
+            <svg-icon class="text-[18px] mr-[var(--van-padding-base)]" :name="iconName" />
+            <span>{{ isDark ? '日间模式' : '夜间模式' }}</span>
+          </div>
+        </template>
+      </van-cell>
+      <van-cell title="修改密码" icon="edit" @click="toReset" />
+      <van-cell @click="onClickLogout">
+        <template #title>
+          <div class="flex items-center ">
+            <svg-icon class="text-[18px] mr-[var(--van-padding-base)]" name="exit" />
+            <span>退出登录</span>
+          </div>
+        </template>
+      </van-cell>
+    </div>
+  </van-popup>
 </template>
 
 <style scoped></style>

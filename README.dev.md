@@ -269,3 +269,7 @@ npx wrangler pages deploy dist --project-name focus-app --branch main
 ```
 npx wrangler deploy
 ```
+改了schema 文件:运行迁移命令生成SQL 迁移文件（如 0003_xxx.sql）
+```
+npx drizzle-kit generate
+```
