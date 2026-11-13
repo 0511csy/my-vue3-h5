@@ -117,7 +117,6 @@ export const useFocusAppStore = defineStore('focus-app', () => {
     const legacyHabits = readLegacy<Habit>('focus_habits')
     const legacyMemos = readLegacy<Memo>('focus_memos')
     const hasLegacy = legacyPomodoros.length + legacyTodos.length + legacyHabits.length + legacyMemos.length > 0
-
     if (hasLegacy) {
       // 旧版本地数据上传云端，完成后清掉本地键避免重复迁移
       await Promise.all([
@@ -135,9 +134,9 @@ export const useFocusAppStore = defineStore('focus-app', () => {
     }
 
     // 首次使用：云端为空且从未播种过时写入默认项
-    if (localStorage.getItem('focus_seeded'))
-      return
-    localStorage.setItem('focus_seeded', '1')
+    // if (localStorage.getItem('focus_seeded'))
+    //   return
+    // localStorage.setItem('focus_seeded', '1')
     if (serverPomodoros.length === 0) {
       for (const p of defaultPomodoros)
         await savePomodoro(p)

@@ -47,14 +47,15 @@ function toReset() {
 
 <template>
   <van-nav-bar :title="title" fixed placeholder>
-    <template #right>
+    <template v-if="showBackToToday" #left>
       <span
-        v-if="showBackToToday"
-        class="mr-[14px] flex h-[28px] cursor-pointer items-center rounded-full bg-[var(--van-primary-color)]/10 px-[12px] text-[13px] leading-none text-[var(--van-primary-color)]"
+        class="mr-[6px] flex h-[28px] cursor-pointer items-center rounded-full bg-[var(--van-primary-color)]/10 px-[12px] text-[13px] leading-none text-[var(--van-primary-color)]"
         @click.stop="uiStore.triggerToday()"
       >
         回到今天
       </span>
+    </template>
+    <template #right>
       <van-icon
         v-if="showAdd"
         name="plus"

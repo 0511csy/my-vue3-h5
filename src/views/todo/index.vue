@@ -140,7 +140,7 @@ function toHabit() {
         >
           <van-checkbox :model-value="item.done" @click.stop="store.toggleTodo(item.id)" />
           <div class="min-w-0 flex-1">
-            <div class="truncate text-[15px]" :class="item.done ? 'line-through text-[var(--van-text-color-3)]' : 'font-medium'">
+            <div class="truncate text-[15px]" :class="item.done ? 'line-through' : 'font-medium'">
               {{ item.name }}
             </div>
             <div class="mt-[4px] flex items-center gap-[6px] text-[12px] text-[var(--van-text-color-2)]">

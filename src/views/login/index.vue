@@ -16,8 +16,8 @@ function switchMode(m: 'login' | 'register') {
 }
 
 async function submit() {
-  if (!/^\w{3,20}$/.test(form.username)) {
-    showToast('用户名需为 3-20 位字母、数字或下划线')
+  if (mode.value === 'register' && !form.username.trim()) {
+    showToast('请输入用户名')
     return
   }
   if (form.password.length < 6) {
@@ -73,7 +73,7 @@ async function submit() {
       </div>
 
       <van-cell-group :border="false" class="mt-[8px]">
-        <van-field v-model="form.username" label="用户名" placeholder="3-20 位字母、数字或下划线" maxlength="20" clearable />
+        <van-field v-model="form.username" label="用户名" placeholder="请输入用户名" maxlength="20" clearable />
         <van-field
           v-model="form.password"
           label="密码"

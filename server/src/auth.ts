@@ -2,8 +2,8 @@ import type { AppEnv } from './types'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
-import { focusSessions, habits, memos, pomodoros, todos, users } from './schema'
 import { hashPassword, signJwt, verifyPassword } from './jwt'
+import { focusSessions, habits, memos, pomodoros, todos, users } from './schema'
 
 export const authApp = new Hono<AppEnv>()
 
@@ -11,8 +11,11 @@ const ok = (result: unknown) => ({ code: 0, message: 'OK', result })
 const fail = (message: string) => ({ code: 1, message, result: null })
 
 function validate(username: unknown, password: unknown): string | null {
-  if (typeof username !== 'string' || !/^[a-zA-Z0-9_]{3,20}$/.test(username))
-    return '用户名需为 3-20 位字母、数字或下划线'
+  if (typeof username !== 'string')
+    return '用户名格式不正确'
+  const name = username.trim()
+  if (name.length === 0 || name.length > 20)
+    return '用户名不能为空且不超过 20 位'
   if (typeof password !== 'string' || password.length < 6 || password.length > 64)
     return '密码长度需为 6-64 位'
   return null
