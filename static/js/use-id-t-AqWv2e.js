@@ -1,1 +1,0 @@
-import{Gt as e}from"./index-Cz_Uw91i.js";var t=0;function n(){let{name:n=`unknown`}=e()?.type||{};return`${n}-${++t}`}export{n as t};
